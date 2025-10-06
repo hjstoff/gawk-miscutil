@@ -10,6 +10,23 @@ to automate the proper initialization of some data structures when a
 The library code makes liberal use of gawk-specific extensions to awk
 and therefore for the most part is not usable by other awk implementations.
 
-The library may use namespaces to "hide" global data from the default
-"awk" namespace. Note that support for namespaces requires `gawk` version
-5.0+.
+## Namespaces
+
+`Awk`, and the `gawk` implementation as well, only has global and local variables,
+and only global functions. There is no such thing that resembles the limited
+```static``` scope that exists in the C language. This poses a potential name
+conflict problems in larger scripts and a fortiori in scripts that are included
+as libraries and that are developed and maintained independently of specific
+utility program scripts [^1].
+
+To reduce the global namespace "pollution" problem, the library may use namespaces
+to "hide" global data and implementation functions from the default ```awk``` namespace.
+Following the elegant style set in the
+[namespace example code in the GNU gawk manual](https://www.gnu.org/software/gawk/manual/html_node/Namespace-Example.html)
+(last visited: 20251006), only the main interface functions are defined to be in the
+```awk``` namespace.
+
+Note that support for namespaces requires `gawk` version 5.0+.
+
+
+[^1]: https://www.gnu.org/software/gawk/manual/html_node/Library-Names.html (last visited: 20251006).
