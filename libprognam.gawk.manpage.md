@@ -18,6 +18,8 @@ gawk-specific includable library files containing miscellaneous general purpose 
 	program_invocation_name();
 
 	program_invocation_short_name();
+
+	errmsgprefix();
 ```
 ## Description
 
@@ -32,7 +34,15 @@ Return the basename of that was used used to invoke the executing gawk script.
 If the executing gawk code, is not invoked from an executable gawk script,
 or the function fails to retrieve the script name,
 a diagnostic message is printed to the standard error channel and program is terminated.
-includeble 
+
+**errmsgprefix()**
+Return a string consisting of the program invocation basename, followed by an opening square
+bracket, followed by the process' PID number, followed by a closing square bracket, e.g., like so:  
+` myscript[1234]`   
+If the executing gawk code, is not invoked from an executable gawk script,
+or the function fails to retrieve the script name,
+a diagnostic message is printed to the standard error channel and program is terminated.
+
 # Notes
 Awk program scripts, like scripts written in many other script languages, can be made into
 self-contained executable utilities by means of the '**#!**' script mechanism, e.g. like so:

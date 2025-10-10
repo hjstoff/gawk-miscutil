@@ -36,3 +36,10 @@ function awk::program_invocation_short_name() {
 	}
 	return program_invocation_short_name;
 }
+
+function awk::errmsgprefix() {
+	if (awk::typeof(errmsgprefix) == "untyped") {
+		errmsgprefix = awk::program_invocation_short_name() "[" PROCINFO["pid"] "]";
+	}
+	return errmsgprefix;
+}

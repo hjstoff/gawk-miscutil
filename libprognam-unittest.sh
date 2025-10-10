@@ -19,6 +19,11 @@ BEGIN {
 		print program_invocation_short_name(), "!=", gawkscriptname "!"; 
 		exit(1);
 	}
+	msgprefix = gawkscriptname "[" PROCINFO["pid"] "]";
+	if (errmsgprefix() != msgprefix) {
+		print program_invocation_short_name(), "!=", msgprefix "!"; 
+		exit(1);
+	}
 	exit(0);
 }
 EOF
