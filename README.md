@@ -36,7 +36,7 @@ Note that support for namespaces requires `gawk` version 5.0+.
 
 ## List of library modules
 - libprognam.gawk
-- libstrutil.gawk
+- libpathutil.gawk
   
 
 [^1]: https://www.gnu.org/software/gawk/manual/html_node/Library-Names.html (last visited: 20251006).
