@@ -9,7 +9,14 @@ function awk::program_invocation_name(	argc) {
 	if (awk::typeof(program_invocation_name) == "untyped") {
 		program_invocation_name = "";
 		if (argc = length(PROCINFO["argv"]) >= 3) {
-			if (PROCINFO["argv"][1] ~ /^(-b?[fE])|(--file)|(--exec)$/) {
+			#
+			# Experimenting with gawk 5.1.0 determined that --file and --exec
+			# as such work to make the script executable, but without any
+			# additional options. The short options that do not take an option
+			# argument work, concatenated if there are more, as long as f or E
+			# the last one.
+			# 
+			if (PROCINFO["argv"][1] ~ /^(-[bnrstOS]*[fE])|(--file)|(--exec)$/) {
 				program_invocation_name = PROCINFO["argv"][2];
 			}
 		}

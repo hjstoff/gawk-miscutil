@@ -9,14 +9,14 @@ mktestprog()
 #! ${GAWK}  $1
 @include "libprognam.gawk";
 BEGIN {
-	name = "$2"
-	if (program_invocation_name() != name) {
+	gawkscriptname = "$2"
+	if (program_invocation_name() != gawkscriptname) {
 		print program_invocation_name(), "!=", name "!"; 
 		exit(1);
 	}
-	sub(/^.*\//, "", name); 
-	if (program_invocation_short_name() != name) {
-		print program_invocation_short_name(), "!=", name "!"; 
+	sub(/^.*\//, "", gawkscriptname); # Strip the path prefix from the script.
+	if (program_invocation_short_name() != gawkscriptname) {
+		print program_invocation_short_name(), "!=", gawkscriptname "!"; 
 		exit(1);
 	}
 	exit(0);
@@ -27,7 +27,7 @@ EOF
 NTESTS=0
 NFAILED=0
 # These succeed when exit status == 0 ...
-for arg in "-f" "-bf" "-E" "-bE" "--file" "--exec" 
+for arg in "-f" "-tsbnrOSf" "-bf" "-E" "-bE" "-bsrnOE" "--file" "--exec" 
 do
 	let NTESTS=NTESTS+1
 	testprogfile="./libprognam-testprog.${arg}"
@@ -44,11 +44,12 @@ do
 done
 
 #
-# This succeeds when exit status == 1 and a proper diagnostic is printed
-# on stderr.
+# The gawk script inlined between single quotes below, is expected to fail
+# and to print a proper diagnostic explaining why it failed. This test
+# succeeds when exit status == 1 and a proper diagnostic is printed on stderr.
 #
 let NTESTS=NTESTS+1
-"${GAWK}" '
+output=$("${GAWK}" '
 @include "libprognam.gawk";
 BEGIN {
   	print program_invocation_short_name();
@@ -58,12 +59,18 @@ BEGIN {
 	#
 	exit(0);
 }
-'
+' 2>&1)
 if [[ $? -ne 1 ]]
 then
-	echo "${PROGNAM}: Test with inline gawk program text failed!" 
+	echo "${PROGNAM}: Test with inline gawk program text failed! (exit value)" 
 	let NFAILED=NFAILED+1
 else
+	if ! [[ $output =~ \ Failed\ to\ deduce\ program\ invocation\ name\  ]]
+	then
+		echo $output
+		echo "${PROGNAM}: Test with inline gawk program text failed! (output)" 
+		let NFAILED=NFAILED+1
+	fi
 	echo "${PROGNAM}: Test with inline gawk program text passed!" 
 fi
 echo $NTESTS tests, $NFAILED failed.
