@@ -1,14 +1,20 @@
 # gawk-miscutil
 
 This is a repository for a small library of more or less generic, general
-purpose, `gawk` routines. None of the library files contain full programs,
-however, besides functions they may contain a `BEGIN` section in order 
-to automate the proper initialization of some data structures when a
-"library file" is "drawn into a `gawk` program text by means of an
+purpose, `gawk` routines. The routines are organized in small, includable, library files.
+None of the library files contain full programs, however, besides functions they may
+contain a `BEGIN` section in order to automate the proper initialization of some data
+structures when a library file is "drawn into a `gawk` program text by means of an
 `@include` statement.
 
 The library code makes liberal use of gawk-specific extensions to awk
 and therefore for the most part is not usable by other awk implementations.
+
+A complete library module consists of:
+
+- an includable library file
+- a unittest script to test the library
+- a manual page in markdown format
 
 ## Namespaces
 
@@ -28,5 +34,9 @@ Following the elegant style set in the
 
 Note that support for namespaces requires `gawk` version 5.0+.
 
+## List of library modules
+- libprognam.gawk
+- libstrutil.gawk
+  
 
 [^1]: https://www.gnu.org/software/gawk/manual/html_node/Library-Names.html (last visited: 20251006).
