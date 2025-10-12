@@ -5,41 +5,56 @@
 #
 @namespace "libprognam";
 
-function awk::program_invocation_name(	argc) {
-	if (awk::typeof(program_invocation_name) == "untyped") {
-		program_invocation_name = "";
-		if (argc = length(PROCINFO["argv"]) >= 3) {
-			#
-			# Experimenting with gawk 5.1.0 determined that --file and --exec
-			# as such work to make the script executable, but without any
-			# additional options. The short options that do not take an option
-			# argument work, concatenated if there are more, as long as f or E
-			# the last one.
-			# 
-			if (PROCINFO["argv"][1] ~ /^(-[bnrstOS]*[fE])|(--file)|(--exec)$/) {
-				program_invocation_name = PROCINFO["argv"][2];
-			}
-		}
+function set_program_invocation_names(	argc) {
+	argc = length(PROCINFO["argv"]);
+	if (argc >= 3 && (PROCINFO["argv"][1] ~ /^(-[bnrstOS]*[fE])|(--file)|(--exec)$/)) {
+		#
+		# Experimenting with gawk 5.1.0 determined that --file and --exec
+		# as such work to make the script executable, but without any
+		# additional options. The short options that do not take an option
+		# argument work, concatenated if there are more, as long as f or E
+		# the last one.
+		# 
+		program_invocation_name = PROCINFO["argv"][2];
+		program_invocation_short_name = program_invocation_name;
+		sub(/^.*\//, "", program_invocation_short_name);
+		return 1;
 	}
-	if (! (awk::typeof(program_invocation_name) == "string" && length(program_invocation_name) > 0)) {
-		printf("[PID=%s]: [E] Failed to deduce program invocation name from \047PROCINFO[\"argv\"]\047!\n",
-		PROCINFO["pid"]) > "/dev/stderr"; 
-		exit(1);
+	program_invocation_short_name = program_invocation_name = "";
+	return 0;
+}
+
+function awk::program_invocation_name() {
+	if (awk::typeof(program_invocation_name) == "untyped") {
+		set_program_invocation_names();
 	}
 	return program_invocation_name;
 }
 
 function awk::program_invocation_short_name() {
 	if (awk::typeof(program_invocation_short_name) == "untyped") {
-		program_invocation_short_name = awk::program_invocation_name();
-		sub(/^.*\//, "", program_invocation_short_name);
+		set_program_invocation_names();
 	}
 	return program_invocation_short_name;
 }
 
+function set_errmsgprefix(	tmp) {
+	if (awk::typeof(program_invocation_short_name) == "untyped") {
+		set_program_invocation_names();
+	}
+	if (program_invocation_short_name == "") {
+		tmp = PROCINFO["argv"][0];
+		sub(/^.*\//, "", tmp);
+	}
+	else {
+		tmp = program_invocation_short_name;
+	}
+	errmsgprefix = tmp "["  PROCINFO["pid"] "]";
+}
+
 function awk::errmsgprefix() {
 	if (awk::typeof(errmsgprefix) == "untyped") {
-		errmsgprefix = awk::program_invocation_short_name() "[" PROCINFO["pid"] "]";
+		set_errmsgprefix();
 	}
 	return errmsgprefix;
 }

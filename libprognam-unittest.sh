@@ -11,17 +11,17 @@ mktestprog()
 BEGIN {
 	gawkscriptname = "$2"
 	if (program_invocation_name() != gawkscriptname) {
-		print program_invocation_name(), "!=", name "!"; 
+		print program_invocation_name(), "!=", name "!" > "/dev/stderr"; 
 		exit(1);
 	}
 	sub(/^.*\//, "", gawkscriptname); # Strip the path prefix from the script.
 	if (program_invocation_short_name() != gawkscriptname) {
-		print program_invocation_short_name(), "!=", gawkscriptname "!"; 
+		print program_invocation_short_name(), "!=", gawkscriptname "!" > "/dev/stderr"; 
 		exit(1);
 	}
 	msgprefix = gawkscriptname "[" PROCINFO["pid"] "]";
 	if (errmsgprefix() != msgprefix) {
-		print program_invocation_short_name(), "!=", msgprefix "!"; 
+		print program_invocation_short_name(), "!=", msgprefix "!" > "/dev/stderr"; 
 		exit(1);
 	}
 	exit(0);
@@ -31,7 +31,6 @@ EOF
 
 NTESTS=0
 NFAILED=0
-# These succeed when exit status == 0 ...
 for arg in "-f" "-tsbnrOSf" "-bf" "-E" "-bE" "-bsrnOE" "--file" "--exec" 
 do
 	let NTESTS=NTESTS+1
@@ -40,43 +39,44 @@ do
 	chmod 755 "${testprogfile}"
 	if ! "${testprogfile}"
 	then
-		echo "${PROGNAM}: Test '${testprogfile}' failed!" 
+		echo "${PROGNAM}: Test '${testprogfile}' failed!" >&2 
 		let NFAILED=NFAILED+1
 	else
-		echo "${PROGNAM}: Test '${testprogfile}' passed!" 
+		echo "${PROGNAM}: Test '${testprogfile}' passed!"  >&2
 	fi	
 	rm "${testprogfile}"
 done
 
 #
-# The gawk script inlined between single quotes below, is expected to fail
-# and to print a proper diagnostic explaining why it failed. This test
-# succeeds when exit status == 1 and a proper diagnostic is printed on stderr.
+# The gawk script inlined between single quotes below obviously has no program
+# invocation script. The program invocation name is expeced to be set to an
+# empty string while the error message prefix is based on the interpreter's
+# name (most likely "gawk").
 #
 let NTESTS=NTESTS+1
-output=$("${GAWK}" '
+"${GAWK}" -v gawkname="${GAWK##*/}" '
 @include "libprognam.gawk";
 BEGIN {
-  	print program_invocation_short_name();
-	#
-	# This should never be reached as program_invocation_short_name
-	# is supposed to call exit(1) on failure.
-	#
-	exit(0);
+	for (i = 0; i < length(PROCINFO["argv"]); ++i) {
+		printf("%2d: %s\n", i, PROCINFO["argv"][i]);
+	}
+	if (program_invocation_short_name() != "") {
+		print program_invocation_short_name() " != empty string!" > "/dev/stderr";
+		exit(1);
+	}
+	prefix = gawkname "[" PROCINFO["pid"] "]";
+	if (errmsgprefix() != prefix) {
+		print errmsgprefix() " != " prefix "!" > "/dev/stderr";
+		exit(1);
+	}
 }
-' 2>&1)
-if [[ $? -ne 1 ]]
+'
+if [[ $? -ne 0 ]]
 then
-	echo "${PROGNAM}: Test with inline gawk program text failed! (exit value)" 
+	echo "${PROGNAM}: Test with inline gawk program text failed!" 
 	let NFAILED=NFAILED+1
 else
-	if ! [[ $output =~ \ Failed\ to\ deduce\ program\ invocation\ name\  ]]
-	then
-		echo $output
-		echo "${PROGNAM}: Test with inline gawk program text failed! (output)" 
-		let NFAILED=NFAILED+1
-	fi
-	echo "${PROGNAM}: Test with inline gawk program text passed!" 
+	echo "${PROGNAM}: Test with inline gawk program text passed!" >&2
 fi
 echo $NTESTS tests, $NFAILED failed.
 if [[ $NFAILED -ne 0 ]]
