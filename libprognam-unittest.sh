@@ -78,7 +78,7 @@ then
 else
 	echo "${PROGNAM}: Test with inline gawk program text passed!" >&2
 fi
-echo $NTESTS tests, $NFAILED failed.
+echo "{PROGNAM}: $NTESTS tests, $NFAILED failed." >&2
 if [[ $NFAILED -ne 0 ]]
 then
 	exit 1
