@@ -18,11 +18,13 @@ A complete library module consists of:
 
 ## Namespaces
 
-`Awk`, and the `gawk` implementation as well, only has global and local variables,
-and only global functions. There is no such thing that resembles the limited
-```static``` scope that exists in the C language. This poses a potential name
-conflict problems in larger scripts and a fortiori in scripts that are included
-as libraries and that are developed and maintained independently of specific
+Like other AWK implmentations, and conformant with the description of the AWK language by
+it original authors, the `gawk` implementation, only has global and local variables,
+and only global functions.
+
+There is no such thing that resembles the limited ```static``` scope that exists in the C language.
+This poses a potential name conflict problems in larger scripts and a fortiori in scripts that
+are included as libraries and that are developed and maintained independently of specific
 utility program scripts [^1].
 
 To reduce the global namespace "pollution" problem, the library may use namespaces
