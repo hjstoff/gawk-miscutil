@@ -25,24 +25,27 @@ gawk-specific includable library files containing miscellaneous general purpose 
 
 **program_invocation_name()**   
 Return the - relative or absolute - pathname that was used to invoke the executing gawk script.  
-If the executing gawk code, is not invoked from an executable gawk script,
-or the function fails to retrieve the script name,
-a diagnostic message is printed to the standard error channel and program is terminated.
+If the executing gawk code, is not invoked from an executable gawk script, in which case there
+obviously is no script name, or if the function fails to retrieve the script name, the function
+returns an empty string.
 
 **program_invocation_short_name()**
-Return the basename of that was used used to invoke the executing gawk script.
-If the executing gawk code, is not invoked from an executable gawk script,
-or the function fails to retrieve the script name,
-a diagnostic message is printed to the standard error channel and program is terminated.
+Return the basename of the script that was used used to invoke the executing gawk script.
+If the executing gawk code, is not invoked from an executable gawk script, in which case there
+obviously is no script name, or if the function fails to retrieve the script name, the function
+returns an empty string.
 
 **errmsgprefix()**
 Return a string consisting of the program invocation basename, followed by an opening square
 bracket, followed by the process' PID number, followed by a closing square bracket, e.g., like so:  
-` myscript[1234]`   
-If the executing gawk code, is not invoked from an executable gawk script,
-or the function fails to retrieve the script name,
-a diagnostic message is printed to the standard error channel and program is terminated.
+` myscript[1234]`
 
+If the executing gawk code, is not invoked from an executable gawk script,
+or the function fails to retrieve the script name, the string returned is the basename of
+the gawk interpreter program - most likely "gawk" - followed by and opening square bracket,
+followed by the process' PID number, followed by a closing square bracket, e.g., like so:
+`gawk[2345]`
+ 
 # Notes
 Awk program scripts, like scripts written in many other script languages, can be made into
 self-contained executable utilities by means of the '**#!**' script mechanism, e.g. like so:
@@ -68,7 +71,10 @@ PROGNAM=${BASH_SOURCE##*/}
 gawk '
 @include "libprognam.gawk";
 BEGIN {
-  print program_invocation_short_name();
+  prognam = program_invocation_short_name();
+  if (! prognam) {
+	exit(1);
+  }
 }
 '
 ```
