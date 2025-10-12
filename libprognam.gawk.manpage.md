@@ -29,13 +29,13 @@ If the executing gawk code, is not invoked from an executable gawk script, in wh
 obviously is no script name, or if the function fails to retrieve the script name, the function
 returns an empty string.
 
-**program_invocation_short_name()**
+**program_invocation_short_name()**    
 Return the basename of the script that was used used to invoke the executing gawk script.
 If the executing gawk code, is not invoked from an executable gawk script, in which case there
 obviously is no script name, or if the function fails to retrieve the script name, the function
 returns an empty string.
 
-**errmsgprefix()**
+**errmsgprefix()**    
 Return a string consisting of the program invocation basename, followed by an opening square
 bracket, followed by the process' PID number, followed by a closing square bracket, e.g., like so:  
 ` myscript[1234]`
