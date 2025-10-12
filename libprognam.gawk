@@ -18,10 +18,9 @@ function set_program_invocation_names(	argc) {
 		program_invocation_name = PROCINFO["argv"][2];
 		program_invocation_short_name = program_invocation_name;
 		sub(/^.*\//, "", program_invocation_short_name);
-		return 1;
+		return;
 	}
 	program_invocation_short_name = program_invocation_name = "";
-	return 0;
 }
 
 function awk::program_invocation_name() {
